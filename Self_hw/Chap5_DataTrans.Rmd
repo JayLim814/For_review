@@ -1,0 +1,1048 @@
+---
+title: "Chap5. Excercise"
+output:
+  html_notebook: default
+  # html_document: default
+---
+
+```{r include=FALSE}
+library(tidyverse)
+library(nycflights13)
+```
+
+
+#### 5.2.4 Exercise
+
+
+#####Prom 1. Find all flights that
+  
+1. Had an arrival delay of two or more hours.
+    
+    
+```{r}
+arrdelay_more2h <- flights %>% 
+  filter(arr_delay >= 120)
+head(arrdelay_more2h)
+```
+    
+    
+2. Flew to Houston (IAH or HOU)
+    
+    
+```{r}
+Flew_to_Hou <- flights %>% 
+  filter(dest == "IAH"| dest == "HOU")
+head(Flew_to_Hou)
+```
+    
+    
+    
+ 3. Were operated by United, American, or Delta
+    
+  - 각 항공사별 abbreviation은`https://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236`를 참조했다.`
+  
+    
+```{r}
+Operby_UAAADL <- flights %>% 
+  filter(carrier == "UA"|carrier == "AA"|carrier == "DL")
+head(Operby_UAAADL)
+```
+    
+    
+    
+    
+    
+ 4. Departed in summer (July, August, and September)
+ 
+```{r}
+Dep_summer <- flights %>% 
+  filter(month == 7| month == 8| month == 9)
+head(Dep_summer)
+```
+ 
+ 
+ 
+    
+ 5. Arrived more than two hours late, but didn’t leave late
+    
+```{r}
+Slow_air <- flights %>% 
+  filter(arr_delay > 120, !(dep_delay > 0))
+head(Slow_air)
+```
+
+  
+    
+6. Were delayed by at least an hour, but made up over 30 minutes in flight.
+
+```{r}
+Did_best <- flights %>% 
+  filter(dep_delay >=60, dep_time <= 30)
+head(Did_best)
+```
+
+7. Departed between midnight and 6am (inclusive)
+
+```{r}
+Dep_at_night <- flights %>% 
+  filter(dep_time >=0, dep_time <= 600)
+head(Dep_at_night)
+```
+
+
+
+
+
+##### Prom2. Another useful dplyr filtering helper is between(). What does it do? Can you use it to simplify the code needed to answer the previous challenges?
+
+
+
+
+```{r}
+?between
+between(1, 2, 3)
+between(2.5, 2, 3)
+between(2, 2, 3)
+
+```
+
+
+- 좌, 우의 boundary 값이 주어졌을때, 첫번째 인수의 값이 좌 우의 boundary안에 포함되는지를 판단한다. 실험결과 경계값은 TRUE로 판단한다. 
+
+- Prom1의 4번 문제를 간단하게 만들 수 있다.(혹은 7번도) 4번 코드를 다시 짜면
+```{r}
+Dep_summer2 <- flights %>% 
+  filter(between(month, 7,9))
+head(Dep_summer2)
+```
+
+
+##### Prom 3. How many flights have a missing dep_time? What other variables are missing? What might these rows represent?
+
+```{r}
+Miss_deptime <- flights %>% 
+  filter(is.na(dep_time))
+head(Miss_deptime)
+```
+
+- 위의 결과가 출발 시간이 없어진 것들인데, 출발 지연시간, 도착 시간, 도착 지연시간, 운항 시간이 모두 NA 값인 것을 확인할 수 있다. 이러한 비행기들은 계획은 되었으나 출발하지 못한 항공편, 즉 결항된 비행기인 것을 알 수 있다.
+
+
+
+##### Prom 4. Why is NA ^ 0 not missing? Why is NA | TRUE not missing? Why is FALSE & NA not missing? Can you figure out the general rule? (NA * 0 is a tricky counterexample!)
+
+```{r}
+NA ^ 0
+NA | TRUE
+FALSE & NA
+NA * 0
+```
+
+- __"`NA`에 관계없이 일정한 답이 나오는 경우"__에 한해서 `NA`가 포함된 식도 답이 나오는 것으로 추측한다. 가령 `NA^0`의 경우 NA가 어떤 실수든 간에 1으로 답이 정해져 있다. `NA|TRUE`역시 이미 하나의 `TRUE`가 있기 때문에 다른 식의 결과가 무엇이든 간에 `TRUE` 값을 가지게 되어 있다. 이는 `FALSE & NA`의 경우와도 마찬가지 인데, 이미 한쪽이 `FALSE`이기 때문에 나머지 하나의 식이 무엇이든 간에 `FALSE`가 되기 때문이다. 
+
+
+- `NA * 0` 의 경우 다소 직관과 어긋나지만, 수학적으로 __무한대 * 0__의 값은 부정(정해지지 않음) 이라는 것을 생각해보면 `NA`의 값을 가지는 것이 이해가 될 수 도 있다. 가령 다음과 같은 코드를 고려해 보면
+
+```{r}
+(1/0) * 0
+```
+
+
+- 답이 정해지지 않았다는 결과를 도출할 수 있다. 다만 수학적으로 식의 답을 알 수 없는 경우도 R에서 답이 나오는 경우가 있는데,
+
+
+```{r}
+(1/0)^0
+
+(1/0)^0 * (0^0)
+```
+
+- 를 고려해보면 우리의 수학적 직관과는 다소 다른 결과를 보임은 알 수 있다. 그렇지만 어쨌거나 결과가 고정된다는 점에서 `NA ^ 0`의 결과가 나온다는 것은 이상하지 않다.
+
+
+
+
+#### 5.3.1. Exercise
+
+##### Prom1. How could you use arrange() to sort all missing values to the start? (Hint: use is.na()).
+
+```{r}
+reverseNA <- flights %>% 
+  arrange(desc(is.na(dep_time)))
+
+head(reverseNA)
+```
+
+
+- `is.na()`를 사용하게 되면 NA 값들이 1로 바뀌게 되고 이를 내림차순으로 정렬하게 되면 `NA`값들을 가진 행들이 위로 올라오게 됨을 알 수 있다.
+
+
+##### Prom2. Sort flights to find the most delayed flights. Find the flights that left earliest.
+
+```{r}
+arrange_delay <- flights %>% 
+  arrange(desc(dep_delay))
+
+head(arrange_delay)
+
+
+leave_early <- flights %>% 
+  filter(dep_time < 100) %>% 
+  arrange(dep_time)
+
+head(leave_early)
+
+```
+
+
+
+##### Prom3.Sort flights to find the fastest flights.
+
+- 속도는 거리/시간임을 기억하자. 
+
+
+```{r}
+fast_flights <- flights %>% 
+  arrange(desc(distance/air_time))
+fast_flights
+```
+
+- 결과에 따르면 2013년 5월 25일 출발한 ATL(아틀란타로 추정)행 비행기 DL1499편이다.
+
+- 속도까지 나오기를 원한다면
+
+```{r}
+velo_fligths <- flights %>% 
+  mutate(velocity = distance/air_time) %>% 
+  select(velocity,carrier,flight, tailnum, everything()) %>% 
+  arrange(desc(velocity))
+
+head(velo_fligths)
+```
+
+
+##### Prom4. Which flights travelled the longest? Which travelled the shortest?
+
+```{r}
+trav_long <- flights %>% 
+  filter(is.na(dep_time) == FALSE) %>% 
+  arrange(distance) %>% 
+  select(distance, carrier, flight,dest,everything())
+
+head(trav_long)
+tail(trav_long)
+```
+
+
+- 가장 짧게 간건 2013년 1월 3일에 출발한 EV3833편(동석차 많음), PHL 행
+
+- 가장 멀리 간건 2013년 9월 23일 출발한 HNL행 HA4983편.
+
+
+
+#### 5.4.1 Exercise
+
+
+##### Prom1. Brainstorm as many ways as possible to select dep_time, dep_delay, arr_time, and arr_delay from flights.
+
+```{r echo=FALSE}
+
+col_edit <- data.frame(c(1:19), colnames(flights))
+col_edit
+target <- c(4,6,7,9)
+```
+
+- 방법 1
+```{r}
+flights %>% 
+  select(dep_time,dep_delay,arr_time,arr_delay)
+```
+
+
+
+
+- 방법 2
+```{r}
+flights %>% 
+  select(c(4,6,7,9))
+```
+
+- 방법 3
+```{r}
+flights %>% 
+  select(starts_with("dep"),starts_with("arr"))
+```
+
+
+
+- 아래의 방법부터는 다소 비효율적
+
+
+
+- 방법 4
+```{r}
+flights %>% 
+  select(ends_with("time"),ends_with("delay"),-(starts_with("sched")),-(starts_with("air")))
+```
+
+
+
+- 방법 5
+```{r}
+flights %>% 
+  select(-(c(1:3)),-(5),(8),-c(9:19))
+```
+
+
+
+##### Prom2.What happens if you include the name of a variable multiple times in a select() call?
+
+```{r}
+flights %>% 
+  select(day,day,day,month,month)
+```
+
+
+- 여러번 불러도 한번만 나타나는 것을 알 수 있다. 
+
+
+##### Prom3.What does the one_of() function do? Why might it be helpful in conjunction with this vector? 
+
+`vars <- c("year", "month", "day", "dep_delay", "arr_delay")`
+
+
+```{r}
+vars <- c("year", "month", "day", "dep_delay", "arr_delay","KKK")
+flights %>% 
+  select(one_of(vars))
+
+```
+
+- char형 vector를 one_of에 넣으면 그안에 있는 char들과 매치해서 있는 것들을 나열해준다. char형 vector 안에는 있지만 변수명이 없는 경우는 나오지 않는다. 일부분만 변수명과 겹치는 경우도 나오지 않는다. 딱 맞아야만 나온다.
+
+
+##### Prom4.Does the result of running the following code surprise you? How do the select helpers deal with case by default? How can you change that default?
+
+```{r}
+select(flights, contains("TIME",ignore.case = FALSE))
+?contains
+?select
+```
+
+
+- 이건 영어를 못해서 생긴 문제인듯 `Passwords are case-sensitive `라는 문장을 외워두자.
+
+
+#### 5.5.2 Exercise
+
+
+
+##### Prom1.Currently dep_time and sched_dep_time are convenient to look at, but hard to compute with because they’re not really continuous numbers. Convert them to a more convenient representation of number of minutes since midnight.
+
+```{r}
+conveni_min <- flights %>% 
+  mutate(dep_time_min = (dep_time %/% 100) * 60+(dep_time %% 100)) %>% 
+  mutate(sched_dep_time_min = (sched_dep_time %/% 100)*60+(sched_dep_time %% 100)) %>%
+  select(dep_time_min,sched_dep_time_min,dep_time,sched_dep_time,everything())
+
+head(conveni_min)
+```
+
+
+
+##### Prom2.Compare air_time with arr_time - dep_time. What do you expect to see? What do you see? What do you need to do to fix it?
+
+```{r}
+flights %>% 
+  mutate(cal_air_time = arr_time - dep_time) %>% 
+  select(cal_air_time, air_time)
+```
+
+```{r}
+flights %>% 
+  mutate(dep_min = (dep_time %/% 100) * 60 + (dep_time %% 100),
+         arr_min = (arr_time %/% 100) * 60 + (arr_time %% 100)) %>% 
+  mutate(cal_airtime = (arr_min-dep_min + 1440) %% 1440)%>% 
+  select(air_time,cal_airtime)
+?flights
+```
+
+
+
+
+
+##### Prom3. Compare dep_time, sched_dep_time, and dep_delay. How would you expect those three numbers to be related?
+
+```{r}
+flights %>% 
+  mutate(mistake = sched_dep_time + dep_delay )%>% 
+  select(dep_time, sched_dep_time, dep_delay, mistake)
+```
+
+- 를 보면 당연히 출발예정시각에 지연시간을 반영하면 실제 출발시각이 되는 것을 알수 있다. 다만 mistake 변수처럼 단순히 두변수를 더한 경우 594처럼 제대로된 시간이 나오지 않는 경우도 있다. 따라서 이를 반영하기 위하여 수정해주면
+
+```{r}
+compare <- flights %>% 
+  filter(is.na(dep_time) == FALSE) %>% 
+  mutate(sched_dep_min = (sched_dep_time %/% 100) * 60 + (sched_dep_time %% 100)) %>% 
+  mutate(correct = (((sched_dep_min + dep_delay)%/%60) * 100 + ((sched_dep_min + dep_delay)%%60)) %% 2400) %>% 
+  select(correct,dep_time)
+
+
+head(compare)
+```
+
+- 다만 이렇게 할 경우 _correct_에서의 0과 *dep_time*에서의 2400이 같은 의미지만 다르게 표기되는 불편함이 있다.
+
+```{r}
+compare %>% filter(correct != dep_time)
+```
+
+
+
+##### Prom4.Find the 10 most delayed flights using a ranking function. How do you want to handle ties? Carefully read the documentation for min_rank().
+
+```{r}
+flights %>% 
+  filter(is.na(dep_time) == FALSE) %>% 
+  mutate(delay_rank = min_rank(desc(arr_delay))) %>% 
+  select(arr_delay, delay_rank) %>% 
+  arrange(delay_rank)
+
+
+```
+
+- tie 발생시에 더 등수가 큰 넘버를 부여하고 싶으면 rank함수를 쓰고 ties.method를 조정하면 됨
+
+```{r}
+
+ct <- c(1,2,2,3,4,5,NA)
+min_rank(ct)
+rank(ct,ties.method = "last")
+min_rank(desc(ct))
+
+```
+
+
+
+
+##### Prom5.What does 1:3 + 1:10 return? Why?
+
+
+```{r}
+1:3
+1:10
+1:3 + 1:10
+
+
+```
+
+
+- 확인할 수 있듯 `[1]  2  4  6  5  7  9  8 10 12 11` 를 돌려준다. R에서는 길이가 맞지 않는 두 벡터를 더할 경우 두 벡터를 더하되, 짧은 벡터의 길이를 주기로 반복해서 더하기 때문이다. 위의 경우 짧은 벡터의 길이가 긴 벡터의 길의 배수가 아니라는 경고 메시지가 나온다. 
+
+
+##### Prom6.What trigonometric functions does R provide?
+
+
+```{r}
+?sin
+```
+
+- 위의 도움말에 따르면 
+
+
+Triagonal | Details
+----------| --------
+cos(x)| 코사인
+sin(x)| 사인
+tan(x)| 탄젠트
+acos(x)| 아크코사인
+asin(x)| 아크사인
+atan(x)| 아크탄젠트
+atan2(y, x)| 이건뭘까
+cospi(x)| 코사인파이
+sinpi(x)| 사인파이
+tanpi(x)| 탄젠트파이
+
+
+
+#### 5.6.7 Exercise
+
+
+##### Prom1.Brainstorm at least 5 different ways to assess the typical delay characteristics of a group of flights. Consider the following scenarios:
+
+
+- A flight is 15 minutes early 50% of the time, and 15 minutes late 50% of the time.
+
+
+- A flight is always 10 minutes late.
+
+
+- A flight is 30 minutes early 50% of the time, and 30 minutes late 50% of the time.
+
+
+- 99% of the time a flight is on time. 1% of the time it’s 2 hours late.
+
+- 이때 2시간 늦는다는 것은 일반적으로 정확히 2시간이 늦는게 아니라 그 이상 늦는 것을 의미한다고 생각하여 그에 맞춰서 코드를 만들었다.
+
+
+```{r}
+char_delay_flights <- flights %>% 
+  filter(!is.na(arr_delay), !is.na(dep_delay)) %>% 
+  group_by(flight) %>% 
+  summarise(
+    early_more_15min = mean(arr_delay <= -15),
+    late_more_15min = mean(arr_delay >= 15),
+    late_more_10min = mean(arr_delay >= 10),
+    early_more_30min = mean(arr_delay <= -30),
+    late_more_30min = mean(arr_delay >= 30),
+    dep_on_the_time = mean(dep_delay == 0),
+    arr_on_the_time = mean(arr_delay == 0),
+    arr_early = mean(arr_delay < 0),
+    dep_late = mean(dep_delay > 0),
+    late_more_2hour = mean(arr_delay >= 120)
+  )
+  
+  
+head(char_delay_flights)
+```
+
+
+- 시험하면.
+
+```{r}
+# A flight is 15 minutes early 50% of the time, and 15 minutes late 50% of the time.
+
+char_delay_flights %>% 
+  filter(early_more_15min == 0.5, late_more_15min == 0.5) %>% 
+  select(flight, early_more_15min, late_more_15min)
+
+
+
+# A flight is always 10 minutes late.
+
+char_delay_flights %>% 
+  filter(late_more_10min == 1) %>% 
+  select(flight, late_more_10min)
+
+
+
+# A flight is 30 minutes early 50% of the time, and 30 minutes late 50% of the time.
+
+char_delay_flights %>% 
+  filter(early_more_30min == 0.5, late_more_30min == 0.5) %>% 
+  select(flight, early_more_30min, late_more_30min)
+
+
+
+# 99% of the time a flight is on time.
+
+char_delay_flights %>% 
+  filter(arr_on_the_time == 0.99) %>% 
+  select(flight, arr_on_the_time)
+
+
+
+# 1% of the time it’s 2 hours late.
+
+char_delay_flights %>% 
+  filter(late_more_2hour == 0.01) %>% 
+  select(flight, late_more_2hour)
+```
+
+
+
+
+
+
+- 문제의 단어가 flight로 주어져 있어서 group을 flight로 했으나, 똑같은 flight라도 항공사가 다르면 다른 비행기라는 것을 감안한다면, 비행기마다 어떤 특징이 있는 가를 보기 위해서는 tailnum으로 하는 것이 (의미상) 더 적절해 보인다. 따라서 group을 tailnum으로 해보자.
+
+
+```{r}
+char_delay_tailnum <- flights %>% 
+  filter(!is.na(arr_delay), !is.na(dep_delay)) %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    early_more_15min = mean(arr_delay <= -15),
+    late_more_15min = mean(arr_delay >= 15),
+    late_more_10min = mean(arr_delay >= 10),
+    early_more_30min = mean(arr_delay <= -30),
+    late_more_30min = mean(arr_delay >= 30),
+    dep_on_the_time = mean(dep_delay == 0),
+    arr_on_the_time = mean(arr_delay == 0),
+    arr_early = mean(arr_delay < 0),
+    dep_late = mean(dep_delay > 0),
+    late_more_2hour = mean(arr_delay >= 120)
+  )
+  
+  
+head(char_delay_tailnum)
+
+```
+
+
+- 앞선 예시들을 하나씩 시험해보면
+
+```{r message=FALSE, warning=FALSE}
+
+# A flight is 15 minutes early 50% of the time, and 15 minutes late 50% of the time.
+
+char_delay_tailnum %>% 
+  filter(early_more_15min == 0.5, late_more_15min == 0.5) %>% 
+  select(tailnum, early_more_15min, late_more_15min)
+
+
+
+# A flight is always 10 minutes late.
+
+char_delay_tailnum %>% 
+  filter(late_more_10min == 1) %>% 
+  select(tailnum, late_more_10min)
+
+
+
+# A flight is 30 minutes early 50% of the time, and 30 minutes late 50% of the time.
+
+char_delay_tailnum %>% 
+  filter(early_more_30min == 0.5, late_more_30min == 0.5) %>% 
+  select(tailnum, early_more_30min, late_more_30min)
+
+
+
+# 99% of the time a flight is on time.
+
+char_delay_tailnum %>% 
+  filter(arr_on_the_time == 0.99) %>% 
+  select(tailnum, arr_on_the_time)
+
+
+
+# 1% of the time it’s 2 hours late.
+
+char_delay_tailnum %>% 
+  filter(late_more_2hour == 0.01) %>% 
+  select(tailnum, late_more_2hour)
+
+
+
+```
+
+
+
+ Which is more important: arrival delay or departure delay?
+
+
+- 조사의 목적에 따라서 arrival delay와 departure delay 중 어떤 것이 더 중요한 것인가에 차이가 있을 수 있지만, 비행기를 타는 근원적인 목적(목적지에 도착하는 것)을 감안한다면, 일반적으로 arrival delay가 조금 더 중요하다고 할 수 있다. 가령 departure delay가 있는 경우라도, arrival delay가 존재하지 않는다면 비행기는 그 역할을 충실히 이행한 것이라 볼 수 있기 때문이다. 
+
+
+
+##### Prom2. Come up with another approach that will give you the same output as not_cancelled %>% count(dest) and not_cancelled %>% count(tailnum, wt = distance) (without using count()).
+
+```{r}
+not_cancelled <- flights %>% 
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+not_cancelled %>% count(dest)
+
+not_cancelled %>% count(tailnum, wt = distance)
+
+
+```
+
+
+- 와 같은 자료를 만들자.
+
+```{r}
+not_cancelled %>% 
+  group_by(dest) %>% 
+  summarise(n = sum(!is.na(arr_time)))
+
+
+not_cancelled %>% count(dest)
+
+```
+
+
+- 두 자료가 같음을 확인할 수 있다. 
+
+
+
+
+```{r}
+not_cancelled %>% count(tailnum, wt = distance)
+
+
+not_cancelled %>%
+  group_by(tailnum) %>% 
+  summarise(n = sum(distance))
+
+
+```
+
+
+- 마찬가지로 두 자료가 같음을 알 수 있다.
+
+
+
+
+##### Prom3. Our definition of cancelled flights (is.na(dep_delay) | is.na(arr_delay) ) is slightly suboptimal. Why? Which is the most important column?
+
+```{r}
+dim(flights %>% 
+  filter(is.na(dep_delay), is.na(arr_delay)))
+
+dim(flights %>% 
+  filter(is.na(dep_time)))
+
+dim(flights %>% 
+  filter(is.na(arr_time)))
+
+dim(flights %>% 
+      filter(is.na(dep_delay)))
+
+dim(flights %>% 
+      filter(is.na(arr_delay)))
+
+
+```
+
+
+- 를 비교해보았을 때, 두번째, 즉 dep_time이 NA인 것을 선택하는 것과 arr_delay와 dep_delay가 모두 NA라는 것을 선택하는 것이 동일한 결과를 낳는 다는 것을 확인할 수 있다. 따라서 앞선 arr_delay와 dep_delay는 최적조건이 아니다. 이때 취소된 항공편을 결정하는 가장 큰 요소는 dep_time, 즉 출발시간이라는 것을 알 수 있다. 
+
+
+##### Prom4. Look at the number of cancelled flights per day. Is there a pattern? Is the proportion of cancelled flights related to the average delay?
+
+
+```{r}
+delayprop_avgdelay <- flights %>% 
+  group_by(year,month,day) %>% 
+  summarise(cancelled_flight = sum(is.na(dep_time)), prop_cancelled = mean(is.na(dep_time)),
+            average_delay_dep = mean(dep_delay, na.rm  = TRUE), average_delay_arr = mean(arr_delay, na.rm = TRUE)) %>% 
+  filter(prop_cancelled <= 0.3)
+
+
+ggplot(data = delayprop_avgdelay) + geom_point(mapping = aes(x = average_delay_dep, y = prop_cancelled))
+
+```
+
+
+
+
+
+##### Prom5. Which carrier has the worst delays? Challenge: can you disentangle the effects of bad airports vs. bad carriers? Why/why not? (Hint: think about flights %>% group_by(carrier, dest) %>% summarise(n()))
+
+
+```{r}
+flights %>% 
+  group_by(carrier) %>% 
+  summarise(delays = mean(arr_delay, na.rm = TRUE)) %>% 
+  arrange(desc(delays))
+```
+
+- F9항공사(프런티어 항공)가 가장 큰 arr_delay를 보인다. 
+
+- Airport와 Carrier와의 관계를 따로 보기 위해서 다음과 같은 과정을 거치고자 한다. 
+
+    1. 우선 carrier와 dest를 group으로 하여 평균 delay와 항공편의 갯수를 센다.
+    
+    2. 각 dest 마다 항공사와 무관한 평균적인 delay를 구한다.
+    
+    3. 1과 2에서 각각 구한값들을 뺀다. 가령 A공항의 평균적인 지연시간이 10분인데, B항공사는 A공항에서 5분정도의 평균적인 지연시간을 가진다면, 이는 B항공사가 다른 항공사들에 비해 우수한 능력을 가졌음을 의미하므로, dest_adjusted된 A공항의 B항공사 지연시간은 -5분이다. 만약 C항공사는 A공항에서 15정도의 평균 지연시간을 가졌다면, 이는 C항공사가 평균에 비해 5분 정도 더 늦었다는 의미이므로 dest_adjusted된 A공항의 C항공사 지연시간은 5분이다.
+    
+    4. 이렇게 구해진 dest_adjusted_delay를 count로 weighted average하여 carrier별로 분류한다.
+    
+    
+```{r}
+carrier_dest <- flights %>% group_by(carrier,dest) %>% 
+  summarise(count = n(),delays = mean(arr_delay, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  group_by(dest) %>% 
+  mutate(average_dest_delay = weighted.mean(delays, count, na.rm = TRUE))
+
+
+head(carrier_dest)
+
+
+carrier_dest %>% 
+  mutate(carrier_delay = delays - average_dest_delay) %>%
+  ungroup() %>% 
+  group_by(carrier) %>% 
+  summarise(dest_adjusted_delay = weighted.mean(carrier_delay,count,na.rm = TRUE)) %>% 
+  arrange(desc(dest_adjusted_delay))
+```
+
+- 앞선 결과아 마찬가지로 F9(프런티어 항공사)가 가장 늦은 delay시간을 가졌다는 것을 알 수 있다. 약간의 차이는 있지만, 자체 delay가 높았던 항공사들이 dest adjusted된 delay 역시 긴 것으로 나타난다. 
+
+- 한계점 : arr_delay는 dep_delay와 밀접한 관련이 있는데, 이를 고려하지 않고, dep_delay는 dest마다 일정한 것으로 간주했다. 이는 다소 비현실적인 가정이나, 아래의 그래프에서 대부분의 dep_delay는 비슷한 곳에 집중된다는 점을 간주하면 완전히 자료와 동떨어지지는 않다.
+
+```{r}
+ggplot(data = flights) + geom_histogram(mapping = aes(x = dep_delay),binwidth = 10)
+```
+
+
+
+
+##### Prom6. What does `the sort` argument to count() do. When might you use it?
+
+
+```{r}
+flights %>% count(dest)
+
+
+flights %>% count(dest, sort = TRUE)
+```
+
+- `sort`를 true로 주면 descending order로 정렬된다.
+
+
+
+#### 5.7.1 Exercise
+
+
+
+##### Prom1. Refer back to the lists of useful mutate and filtering functions. Describe how each operation changes when you combine it with grouping.
+
+
+- 각 Function들 중 전체를 필요로 하는 함수들은 그 전체가 group으로 바뀐다. 이때 전체를 필요로 한다는 의미는 mean,median,rank,sum 등 적어도 둘 이상의 자료를 필요로 하는 함수들이다. 그렇지 않은 경우는 차이가 없다.
+
+
+
+
+
+```{r}
+carrier_group <- flights %>% 
+  filter(is.na(dep_time) == FALSE) %>% 
+  group_by(carrier)
+
+not_cancelled <- flights %>% 
+  filter(is.na(dep_time) == FALSE)
+
+
+not_cancelled %>% 
+  mutate(velocity = distance / air_time) %>% 
+  select(year:day, tailnum, velocity, carrier)
+
+carrier_group %>% 
+  mutate(velocity = distance / air_time) %>% 
+  select(year:day, tailnum, velocity, carrier)
+```
+
+- 위 두 표는 차이가 없음을 알 수 있다.
+
+
+
+```{r}  
+not_cancelled %>% 
+  mutate(mean_distance = mean(distance)) %>% 
+  select(carrier, mean_distance)
+  
+
+carrier_group %>% 
+  mutate(mean_distance = mean(distance)) %>% 
+  select(carrier, mean_distance)
+
+```
+
+- mean의 경우 첫 표는 전체의 mean이 나온 반면 두번째 표는 carrier별 mean이 나온것을 알 수 있다.
+
+
+
+
+```{r}
+not_cancelled %>% 
+  mutate(r = min_rank(distance)) %>% 
+  select(year:day, tailnum, carrier, r) %>% 
+  filter(carrier == "UA") %>% 
+  arrange(r)
+
+carrier_group %>% 
+  mutate(r = min_rank(distance)) %>% 
+  select(year:day, tailnum, carrier, r)%>% 
+  filter(carrier == "UA") %>% 
+  arrange(r)
+
+```
+
+
+- rank 역시 같은 항공편이라도 다른 rank가 주어지는 것을 알 수 있다. group을 할 경우 group내에서만 등수가 정해진다.
+
+
+
+
+##### Prom2. Which plane (tailnum) has the worst on-time record?
+
+```{r}
+# delay proportion
+
+flights %>% 
+  filter(!(is.na(dep_time))) %>% 
+  group_by(tailnum) %>% 
+  summarise(prop_delay = mean(arr_delay > 0)) %>% 
+  arrange(desc(prop_delay))
+
+
+# on time proportion
+
+flights %>% 
+  filter(!(is.na(dep_time))) %>% 
+  group_by(tailnum) %>% 
+  summarise(prop_ontime = mean(arr_delay == 0)) %>% 
+  arrange(desc(prop_ontime))
+  
+```
+
+
+
+
+##### Prom3. What time of day should you fly if you want to avoid delays as much as possible?
+
+
+- delay를 최대한 피해야 하는데, dep_delay와 arr_delay의 경우 모두 찾아보도록 한다. 우선 아래의 그래프는 dep_time을 자정으로부터 몇분이 지났는지로 바꾼후, delay proportion을 계산한 이후 그래프를 그린 것이다. 시간을 수정한 이유는 원래 데이터를 그대로 사용할 경우 col사이에 빈칸이 생기기 때문이다.
+
+- 아래에서 확인할 수 있듯, dep_delay를 피하기 위해서는 새벽 4시에서 5시 사이의 비행기를 타는 것이 가장 좋다고 할 수 있다.
+
+
+
+
+```{r}
+prop_delay <- flights %>% 
+  filter(!is.na(dep_time)) %>% 
+  mutate(dep_time_min = (dep_time %/% 100)*60 + (dep_time %% 100)) %>% 
+  group_by(dep_time_min) %>% 
+  summarise(prop_delay = mean(dep_delay >0, na.rm = TRUE)) %>% 
+  arrange(prop_delay)
+
+prop_delay
+
+ggplot(data = prop_delay) + 
+  geom_col(mapping = aes(x = dep_time_min, y = prop_delay),width = 5) + 
+  scale_x_continuous(breaks = seq(0, 1440,by = 60))
+```
+
+
+- 이제 arr_delay를 피하기 위한 deptime을 알아보면 이 역시 마찬가지로 새벽 4시와 5시 사이의 비행기가 가장 지연율이 낮은 것을 확인할 수 있다. 따라서 새벽 4시에서 5시 사이의 비행기를 타는 것이 적절하다. 
+
+
+
+```{r}
+prop_delay2 <- flights %>% 
+  filter(!is.na(dep_time)) %>% 
+  mutate(dep_time_min = (dep_time %/% 100)*60 + (dep_time %% 100)) %>% 
+  group_by(dep_time_min) %>% 
+  summarise(prop_delay2 = mean(arr_delay >0, na.rm = TRUE))
+
+prop_delay2
+
+ggplot(data = prop_delay2) + 
+  geom_col(mapping = aes(x = dep_time_min, y = prop_delay2),width = 5) + 
+  scale_x_continuous(breaks = seq(0, 1440,by = 60))
+```
+
+
+
+
+
+##### Prom4. For each destination, compute the total minutes of delay. For each flight, compute the proportion of the total delay for its destination.
+
+
+```{r}
+flights %>% 
+  filter(!is.na(dep_time)) %>% 
+  group_by(dest, flight) %>% 
+  mutate(total_delay = sum(arr_delay, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  group_by(dest) %>% 
+  mutate(tot_delay_dest = sum(arr_delay, na.rm = TRUE)) %>% 
+  select(dest, flight, total_delay, tot_delay_dest) %>% 
+  mutate(prop_of_flight = total_delay/tot_delay_dest)
+```
+
+
+
+
+
+##### Prom5. Delays are typically temporally correlated: even once the problem that caused the initial delay has been resolved, later flights are delayed to allow earlier flights to leave. Using lag(), explore how the delay of a flight is related to the delay of the immediately preceding flight.
+
+```{r}
+Previous_delay <- flights %>% 
+  mutate(previous_delay = lag(dep_delay)) %>% 
+  select(dep_delay, previous_delay, everything()) %>% 
+  mutate(gap_dep_pre = dep_delay - previous_delay)
+
+Previous_delay
+
+
+ggplot(data = Previous_delay) + geom_freqpoly(mapping = aes(x = gap_dep_pre, y = ..density..))
+
+```
+
+- 위의 table을 보면 이전의 delay가 그 다음 비행기의 delay에 영향을 준다는 것을 확인할 수 있으며, 이를 시각화 하기 위해서 둘의 차이를 그래프로 그려보면 거의 대부분의 값들이 0근처에 모여있음을 즉, 둘 사이의 차이가 거의 아주 가깝다는 것을 확인할 있 있다. 
+
+
+
+
+
+##### Prom6. Look at each destination. Can you find flights that are suspiciously fast? (i.e. flights that represent a potential data entry error). Compute the air time a flight relative to the shortest flight to that destination. Which flights were most delayed in the air?
+
+
+```{r}
+flights %>% 
+  filter(!is.na(dep_time)) %>% 
+  mutate(velocity = distance/air_time) %>% 
+  select(velocity, everything()) %>% 
+  arrange(desc(velocity))
+  
+```
+
+
+
+
+
+
+##### Prom7. Find all destinations that are flown by at least two carriers. Use that information to rank the carriers.
+
+```{r}
+flights %>% group_by(dest) %>% 
+  summarise(number_carrier = n_distinct(carrier)) %>% 
+  filter(number_carrier >=2)
+```
+
+- 위 목록에 있는 destination들이 적어도 2개 이상의 항공사를 가지는 destination들이다. 
+
+- carrier 들을 rank 하라는 의미가 불분명하나, 얼마나 많은 dest를 가지느냐로 받아들인다면
+
+```{r}
+flights %>% group_by(carrier) %>% 
+  summarise(number_dest = n_distinct(dest)) %>% 
+  mutate(r = min_rank(desc(number_dest))) %>% 
+  arrange(r)
+```
+
+-EV 항공사(익스프레스 제트)가 가장 많은 dest를 가진다. 
+
+
+
+
+##### Prom8. For each plane, count the number of flights before the first delay of greater than 1 hour.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

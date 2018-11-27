@@ -1,0 +1,127 @@
+---
+title: "Position_Adjustment_3_8"
+output:
+  pdf_document: null
+  html_notebook: default
+  latex_engine: xelatex
+  mainfont: NanumGothic
+---
+
+```{r include=FALSE}
+library(tidyverse)
+library(devtools)
+library(tinytex)
+
+```
+
+
+1. What is the problem with this plot? How could you improve it?
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_point()
+```
+
+```{r}
+summary(mpg)
+```
+- 위의 코드를 확인하면 234개의 데이터가 산점도상에 존재해야 하는데, 눈대중으로 세보아도 그렇다고 보기는 힘들다. 따라서 __Overplotting__ 의 문제가 발생할 것으로 생각할 수 있다.(세어보니 약 100개가 조금 넘는 점이 있다)
+
+
+- 따라서 position을 jitter로 설정하면 효과를 볼 수 있다.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_point(position = "jitter")
+```
+
+
+
+
+
+2. What parameters to geom_jitter() control the amount of jittering?
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_jitter(width = 0.1)
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_jitter(width = 0.2)
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_jitter(width = 0.3)
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_jitter(width = 0.4)
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_jitter(width = 0.5)
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_jitter(width = 0.6)
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_jitter(width = 0.7)
+
+```
+
+- jitter에서 width 나 height를 조절해주면 된다. 보통 축이 categorical data인 자료들을 써주면 아주 편할 것 같다. dafault는 40프로로 조절이 되어 있는데, 만약 40퍼센트 라면 가상의 bin내에서 플러스 마이느 40프로 즉, 통의 80%정도를 차지하도록 jitter를 설정하는 것이다. 만약 0.5로 설정해놓게 되면 빈틈이 categoris 사이가 꽉찰듯
+
+
+
+
+3. Compare and contrast geom_jitter() with geom_count().
+```{r}
+ggplot(mpg, aes(cty, hwy)) +
+ geom_jitter()
+
+ggplot(mpg, aes(cty, hwy)) +
+ geom_count()
+```
+
+- 두 그래프 모두 일반적인 산점도에서 overplotting의 문제를 해결할 수 있다는 공통점이 있다. 즉, 겹쳐지는 점들을 표시하기 위한 모종의 방법을 가지는 것이다.
+
+- 그렇지만 어떠한 방식으로 그 문제를 해결 하는가 하는 데에서 차이를 보인다. `geom_jitter`의 경우 점들을 암묵적 구간(implied bins)내에서 적당히 흩어 놓음으로써 overplotting을 막는 반면, `geom_count`의 경우 점의 크기를 다르게 하여 overplotting의 정도를 표시해준다. 점의 크기가 큰 경우 많은 점들이 겹쳐져 있다는 의미이다.
+
+
+
+
+
+4. What’s the default position adjustment for geom_boxplot()? Create a visualisation of the mpg dataset that demonstrates it.
+
+
+```{r}
+?geom_boxplot
+?mpg
+ggplot(data = mpg) + geom_boxplot(mapping = aes(x = drv , y = hwy))
+?position_dodge2
+```
+
+- `geom_boxplot()`의 default position은 dodge2이다. 
+
+- 기존의 dodge가 같은 너비를 가진 반면 dodge2는 너비가 변할 수 있다는 점에서 다르다. 특히 boxpot에 자주 사용되나, bar 그래프에서도 사용될 수 있다.
+
+
+```{r}
+ggplot(data = diamonds) + geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge",width = c(1:8))
+ggplot(data = diamonds) + geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge2",width = c(1:8))
+
+```
+
+
+
+- bar 그래프의 너비를 조정할 수 있다는 것 이외에도 padding(바사이의 간격)을 조절할 수 있다는 점에서 약간 다른 점이 있다. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

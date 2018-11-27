@@ -1,0 +1,380 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={9\_17\_1},
+            pdfauthor={JayLim814},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{9\_17\_1}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{JayLim814}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2018년 9월 19일}
+
+
+\begin{document}
+\maketitle
+
+\section{9월 17일 수업.}\label{-17-.}
+
+\section{Data Viualization 마무리. \& Graphics
+공부}\label{data-viualization-.-graphics-}
+
+\section{Statistical
+transformations.}\label{statistical-transformations.}
+
+library(tidyverse) \# 이제부터는 다이아몬드. 원래 데이터에서 없는 변수를
+만들어내는 방법. \# 막대그래프 =\textgreater{} count는 원래 자료에 있지
+않은 변수. 새로운 변수를 만들어 내는 과정. \# geom\_bar 대신에
+stat\_count 오브젝트를 사용해도 괜찮음. ggplot(data = diamonds) +
+geom\_bar(mapping = aes(x = cut)) \# 상대도수로도 바꿀 수 있음
+ggplot(data = diamonds) + geom\_bar(mapping = aes(x = cut, y = ..prop..,
+, group = 1)) ggplot(data = diamonds) + stat\_summary( \# 요약
+그리기(자기 멋대로 가능) mapping = aes(x = cut, y = depth), \# y축은
+depth fun.ymin = min, \# 미니멈은 min값 fun.ymax = max, \# 위쪽은 max 값
+fun.y = median \# 점찍는 곳은 median 값.(mean으로도 수정가능) )
+
+\section{Position Adjustment =\textgreater{}
+위치조정}\label{position-adjustment-}
+
+ggplot(data = diamonds) + geom\_bar(mapping = aes(x = cut, colour =
+cut))
+
+\section{색을 컷에 따라서 조정. 사실 우리가 원한는 걸로 하려면 fill =
+cut이어야함}\label{---.------fill-cut}
+
+ggplot(data = diamonds) + geom\_bar(mapping = aes(x = cut, fill = cut))
+
+\section{이게 우리가 원하는 그림.}\label{---.}
+
+\section{그럼 Fill 을 다른 것으로도 할 수 있지
+않을까?}\label{-fill-------}
+
+ggplot(data = diamonds) + geom\_bar(mapping = aes(x = cut, fill =
+clarity)) \# 한 bar 안에서 색깔별로 clarity가 표시됨.
+
+ggplot(data = diamonds) + geom\_bar(mapping = aes(x = cut, fill =
+clarity), position = ``identity'') \# 를 하면 stacking을 할때, 0부터
+무조건 쌓게됨. 그래서 안보이는 범주도 있음.
+
+\section{dodge(피구) =\textgreater{} 서로 피해서 쌓으라}\label{dodge---}
+
+ggplot(data = diamonds) + geom\_bar(mapping = aes(x = cut, fill =
+clarity), position = ``dodge'')
+
+\section{fill을 하게 되면 전부 1.0에 맞춰서
+보여줌.}\label{fill----1.0--.}
+
+ggplot(data = diamonds) + geom\_bar(mapping = aes(x = cut, fill =
+clarity), position = ``fill'')
+
+\section{stack은 차차 쌓아 나가라. 첨에 우리가 fill = clarity만
+써놨던거랑 비슷하게 됨}\label{stack---.---fill-clarity---}
+
+ggplot(data = diamonds) + geom\_bar(mapping = aes(x = cut, fill =
+clarity), position = ``stack'')
+
+\section{jitter는 dodge처럼 피하되, 랜덤하게 마구 피해라. 산점도에서
+x값에 같은 애들에 약간씩 noise를
+둠.}\label{jitter-dodge----.--x----noise-.}
+
+\section{x축이 범주형 자료일 경우, x축이 같은것에 큰 의미가 없기 때문에,
+간격을 채우기 위해서 사용하는 경우가 있음}\label{x----x-----------}
+
+\subsection{Coordinate system : 좌표계}\label{coordinate-system-}
+
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + geom\_boxplot()
+
+\section{상자 그림 그리는 법. 각 class 별 hwy를 boxplot으로 구분 있음.
+가령 subcompact의(준 소형차) 연비가 좋다는 것을 확인
+가능.}\label{---.--class--hwy-boxplot--.--subcompact------.}
+
+\section{suv의 경우 연비가 낮음. pickup은 트럭임. 이것도 연비 낮음.
+이거는 좌표계가 기본적으로 cartesnion(데카르트 좌표계가
+default)}\label{suv---.-pickup-.---.----cartesnion--default}
+
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + geom\_boxplot()
++ coord\_cartesian(xlim = c(0, 5))
+
+\section{xlim은 x축의 범위. 0부터 5까지만 하겠다 근데 좀 애매해짐. x축이
+범주형 자료기 때문. 이 경우는 class 왼쪽부터 1,2,3,4,5만 보인듯. 너무
+자료가 많아서 보여주고 싶은게 잘 안보일 경우에 이렇게
+씀.}\label{xlim-x-.-0-5----.-x---.---class--12345-.----------.}
+
+\section{coord\_fixed로 놓으면 좌표축의 비율을 조절 가능. ratio =
+1/2이면 세로가 가로에 비해 2배
+김.}\label{coord_fixed-----.-ratio-12----2-.}
+
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + geom\_boxplot()
++ coord\_fixed(ratio = 1/1.618)
+
+\section{coord\_flip은 xy를 뒤집음}\label{coord_flip-xy-}
+
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + geom\_boxplot()
++ coord\_flip()
+
+\section{지도를 그리는 library(maps)}\label{--librarymaps}
+
+install.packages(``maps'') library(maps) nz \textless{}-
+map\_data(``nz'')
+
+ggplot(nz, aes(long, lat, group = group)) + geom\_polygon(fill =
+``white'', colour = ``black'') nz summary(nz)
+
+\section{지도는 polygon. 즉 다각형 형식의 자료형임. x은 long(경도) y가
+위도.}\label{-polygon.----.-x-long-y-.}
+
+\section{보통 지도는 scale이 가로가 길다. coord\_qucikmap만 치면
+그럴듯한 모양이 된다.}\label{--scale--.-coord_qucikmap----.}
+
+ggplot(nz, aes(long, lat, group = group)) + geom\_polygon(fill =
+``white'', colour = ``black'') + coord\_quickmap() \# 장난 치기
+ggplot(nz, aes(long, lat, group = group)) + geom\_polygon(fill =
+``white'', colour = ``black'') + coord\_quickmap() + coord\_flip()
+
+\section{coord\_polar =\textgreater{} 극좌표계
+이용.}\label{coord_polar--.}
+
+r\_bar \textless{}- ggplot(data = diamonds) + geom\_bar( mapping = aes(x
+= cut, fill = cut), show.legend = FALSE, width = 1 ) +
+theme(aspect.ratio = 1) + labs(x = NULL, y = NULL) r\_bar
+
+r\_bar + coord\_polar()
+
+\section{요렇게 하면 극좌표도 그릴 수 있다. 원점으로부터의 거리로서
+비율을 나타냄.}\label{-----.----.}
+
+\section{종합 =\textgreater{}}
+
+\section{\texorpdfstring{ggplot(data = ) + ( mapping = aes(), stat = ,
+position = ) + +
+}{ggplot(data = ) + ( mapping = aes(), stat = , position =  ) +  + }}\label{ggplotdata-mapping-aes-stat-position}
+
+\subsection{Chap 28. Graphics.}\label{chap-28.-graphics.}
+
+\section{For commmunications. 그림이 무엇을 담고 있는지를 덧붙일 필요가
+있다.}\label{for-commmunications.-------.}
+
+\section{Title}\label{title}
+
+ggplot(mpg, aes(x = displ, y = hwy)) + geom\_point(aes(color = class)) +
+geom\_smooth(se = FALSE) + labs(title = ``Fuel efficiency generally
+decreases with engine size'')
+
+\section{labs는 labels의 약자. 여기서 title은
+제목.}\label{labs-labels-.--title-.}
+
+\section{Subtitle and caption}\label{subtitle-and-caption}
+
+ggplot(mpg, aes(displ, hwy)) + geom\_point(aes(color = class)) +
+geom\_smooth(se = FALSE) + labs( title = ``Fuel efficiency generally
+decreases with engine size'', subtitle = ``Two seaters (sports cars) are
+an exception because of their light weight'', \# 부제목 caption = ``Data
+from fueleconomy.gov'' \# 출처 표기 )
+
+\section{참고로 너무 제목이나 부제가 길면 끝에서 짤린당.}\label{------.}
+
+\section{각 좌표축에도 달수 있음.}\label{---.}
+
+ggplot(mpg, aes(displ, hwy)) + geom\_point(aes(colour = class)) +
+geom\_smooth(se = FALSE) + labs( x = ``Engine displacement (L)'', y =
+``Highway fuel economy (mpg)'' )
+
+\section{거의 필수적으로 해야할 것은 축에 반드시 단위를 붙여주어야 함.
+꼬꼮ㄲ곡}\label{--------.-}
+
+\section{범주형 자료는 예외.}\label{--.}
+
+\section{수식도 집어넣을 수 있음 quote을 사용하면
+됨.}\label{----quote--.}
+
+df \textless{}- tibble(x = runif(10), y = runif(10)) ggplot(df, aes(x,
+y)) + geom\_point() + labs( x = quote(sum(x{[}i{]} \^{} 2, i == 1, n)),
+y = quote(alpha + beta + frac(delta, theta)) \#frac은 분수를 의미. )
+
+\section{더 자세한 사항은 ?poltmath를 보시면
+됩니다.}\label{---poltmath--.}
+
+?plotmath
+
+\section{Annotations. 이건 우리가 뒤쪽에서 다룰꺼니까 생략하도록
+하겠습니당.}\label{annotations.------.}
+
+\section{포인트에 대해서 설명을 해야할 경우 geom\_text를
+사용.}\label{-----geom_text-.}
+
+\section{이건 잠깐 변수를 위한거 공부 ㄴㄴ}\label{-----}
+
+best\_in\_class \textless{}- mpg \%\textgreater{}\% group\_by(class)
+\%\textgreater{}\% filter(row\_number(desc(hwy)) == 1) best\_in\_class
+
+ggplot(mpg, aes(x = displ, y = hwy)) + geom\_point(aes(colour = class))
++ geom\_text(aes(label = model), data = best\_in\_class)
+
+\section{ggrepel은 좀더 편함.}\label{ggrepel--.}
+
+install.packages(``ggrepel'') library(ggrepel)
+
+ggplot(mpg, aes(displ, hwy)) + geom\_point(aes(colour = class)) +
+geom\_point(size = 3, shape = 1, data = best\_in\_class) +
+ggrepel::geom\_label\_repel(aes(label = model), data = best\_in\_class)
+
+\section{Scale.}\label{scale.}
+
+ggplot(mpg, aes(displ, hwy)) + geom\_point(aes(colour = class)) +
+scale\_x\_continuous() + scale\_y\_continuous() +
+scale\_colour\_discrete()
+
+\section{이게 기본 옵션인데}\label{--}
+
+ggplot(mpg, aes(displ, hwy)) + geom\_point() +
+scale\_y\_continuous(breaks = seq(15, 40, by = 5)) \# 15부터 40까지
+5마다 틱을 넣어라
+
+ggplot(mpg, aes(displ, hwy)) + geom\_point() +
+scale\_x\_continuous(labels = NULL) + scale\_y\_continuous(labels =
+NULL)
+
+\section{축 없애기}\label{-}
+
+\section{범위가 큰 자료가 나오는 경우가 있음. 그경우에는 로그로
+transform바꾸는게 도움이 될때가 있음.}\label{-----.---transform---.}
+
+ggplot(mpg, aes(x = displ, y = hwy)) + geom\_point() + scale\_y\_log10()
+
+\section{뒤집기}
+
+ggplot(mpg, aes(x = displ, y = hwy)) + geom\_point() +
+scale\_x\_reverse()
+
+\section{legend는 기본적으로는 오른족에 붙임. 바꾸고 싶으면 theme이라는
+오브젝트 사용. legend.postion 하고 left right, top bottom 등등 으로
+붙이기
+가능}\label{legend---.---theme--.-legend.postion--left-right-top-bottom----}
+
+ggplot(mpg, aes(displ, hwy)) + geom\_point(aes(colour = class)) +
+theme(legend.position = ``left'') \# 만약 더 관심이 있으면 링크에
+들어가보자
+
+\subsection{Zooming}\label{zooming}
+
+\section{coord\_cartension을 활용하면 됨.}\label{coord_cartension--.}
+
+ggplot(mpg, mapping = aes(displ, hwy)) + geom\_point(aes(color = class))
++ geom\_smooth() + coord\_cartesian(xlim = c(5, 7), ylim = c(10, 30))
+
+\section{만약에 coord\_cartension이 빠지면, 아예 없는 자료를 smoothing에
+넣지않음}\label{-coord_cartension-----smoothing-}
+
+ggplot(mpg, mapping = aes(displ, hwy)) + geom\_point(aes(color = class))
++ geom\_smooth() + xlim(5, 7) + ylim(10, 30)
+
+\section{방금 위코드 실행하면 warning 뜨면서 자료가 빠졌다고
+알려줌.}\label{---warning----.}
+
+\section{뒷부분은 생략하고 바로 Themes으로 넘어감.}\label{---themes-.}
+
+\subsection{Theme}\label{theme}
+
+\section{아무것도 안하면 배경은 회색, 선은 파란색\ldots{} 등등. 근데
+Theme은 이런거 바꿀 수 있음.}\label{------.--theme----.}
+
+ggplot(mpg, aes(displ, hwy)) + geom\_point(aes(color = class)) +
+geom\_smooth(se = FALSE) + theme\_bw() \# bw는 blakck \& white. \#
+어떤게 있는지 궁금하면 교재를 참조하면 됨. \# 이런것을 참조하면 깔끔한
+보고서를 쓸수 있음. 특히 회색 배경은 프린터할때 x되는 경우가 많음
+그럴때는 bw 테마를 쓰는게 나음.
+
+\section{그림만 따로 저장하고 싶을때.}\label{---.}
+
+\section{만든 다음에 바로 ggsave하면 됨. 확장자도 png. pdf 등등으로 바꿀
+수 있음}\label{---ggsave-.--png.-pdf----}
+
+ggplot(mpg, aes(displ, hwy)) + geom\_point() ggsave(``my\_plot.pdf'')
+
+\section{만약에 그림을 변수에 저장해 놓았다면 나중에 저장해도 됨. 아니면
+바로 저장해줘야뎀.}\label{-------.---.}
+
+\section{좀 지나고 저장하려면 plot = 로 따로 저장해주어야
+함.}\label{---plot----.}
+
+?ggsave
+
+\section{좀더 편한건 Data visulaization with ggplot :: CHAT SHEET를 보면
+됨.}\label{--data-visulaization-with-ggplot-chat-sheet--.}
+
+
+\end{document}
